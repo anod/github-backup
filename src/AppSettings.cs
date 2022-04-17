@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using static System.FormattableString;
 
 public class AppSettings
@@ -13,7 +12,7 @@ public class AppSettings
 
     public string BackupFolder => GetStringFromConfiguration("BackupFolder");
 
-    public string GithubToken => GetStringFromConfiguration("GithubToken");
+    public string GitHubToken => GetStringFromConfiguration("GitHubToken");
 
     public string GitCommand => GetStringFromConfiguration("GitCommand");
 

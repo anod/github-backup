@@ -1,15 +1,15 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-class GithubBackupApp : IHostedService
+class App : IHostedService
 {
     private readonly ILogger _logger;
-    private readonly GithubBackupWorker _worker;
+    private readonly Worker _worker;
 
-    public GithubBackupApp(
-        ILogger<GithubBackupApp> logger,
+    public App(
+        ILogger<App> logger,
         IHostApplicationLifetime appLifetime,
-        GithubBackupWorker worker
+        Worker worker
     )
     {
         _logger = logger;
@@ -33,8 +33,18 @@ class GithubBackupApp : IHostedService
          _logger.LogInformation("App Started");
         Task.Run(async () => 
         {
-            await _worker.PerformBackup();
-            Environment.Exit(0);
+            try
+            {
+                await _worker.PerformBackup();
+            } 
+            catch (Exception e)
+            {
+                 _logger.LogError($"Unhandled exception - {e.GetType()}: {e.Message} {e.StackTrace}", e);
+            } 
+            finally
+            {
+                Environment.Exit(0);
+            }
         });
     }
 }
