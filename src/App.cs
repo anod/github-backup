@@ -1,19 +1,20 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 class App : IHostedService
 {
     private readonly ILogger _logger;
-    private readonly Worker _worker;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public App(
         ILogger<App> logger,
         IHostApplicationLifetime appLifetime,
-        Worker worker
+        IServiceScopeFactory serviceScopeFactory
     )
     {
         _logger = logger;
-        _worker = worker;
+        _serviceScopeFactory = serviceScopeFactory;
         
         appLifetime.ApplicationStarted.Register(OnStarted);
     }
@@ -35,7 +36,11 @@ class App : IHostedService
         {
             try
             {
-                await _worker.PerformBackup();
+                using(IServiceScope scope = _serviceScopeFactory.CreateScope())
+                {
+                    var worker = scope.ServiceProvider.GetRequiredService<Worker>();
+                    await worker.PerformBackup();
+                }
             } 
             catch (Exception e)
             {
