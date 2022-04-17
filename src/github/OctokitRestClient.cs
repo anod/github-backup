@@ -1,17 +1,17 @@
 using Octokit;
 
-class GithubRestClient: IRepoClient
+class OctokitRestClient: IRemoteRepoClient
 {
     private readonly AppSettings _appSettings;
 
-    public GithubRestClient(
+    public OctokitRestClient(
         AppSettings appSettings
     )
     {
         _appSettings = appSettings;
     }
 
-    public async Task<IEnumerable<IRepoClient.Repo>> ListUserRepositories()
+    public async Task<IEnumerable<IRemoteRepoClient.RemoteRepo>> FetchRepositories()
     {
         var client = new GitHubClient(new ProductHeaderValue("github-backup-app"));
         client.Credentials = new Credentials(_appSettings.GitHubToken);
@@ -21,10 +21,11 @@ class GithubRestClient: IRepoClient
         };
         var repositories = await client.Repository.GetAllForCurrent(options: options);
 
-        return repositories.Select(r => new IRepoClient.Repo()
+        return repositories.Select(r => new IRemoteRepoClient.RemoteRepo()
         {
             Name = r.Name,
-            CloneUrl = r.CloneUrl
+            CloneUrl = r.CloneUrl,
+            UserName = r.Owner.Login
         });
     }
 }
